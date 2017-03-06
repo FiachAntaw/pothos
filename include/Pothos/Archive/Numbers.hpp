@@ -44,100 +44,10 @@ void load(Archive &ar, bool &t, const unsigned int)
     t = (value == 0)?false:true;
 }
 
-//------------ 8 bit integer support (all char types) --------------//
+//--------- integer support ---------//
 template<typename Archive, typename T>
 typename std::enable_if<
-    std::is_same<T, unsigned char>::value or
-    std::is_same<T, signed char>::value or
-    std::is_same<T, char>::value
->::type save(Archive &ar, const T &t, const unsigned int)
-{
-    BinaryObject bo(&t, 1);
-    ar << bo;
-}
-
-template<typename Archive, typename T>
-typename std::enable_if<
-    std::is_same<T, unsigned char>::value or
-    std::is_same<T, signed char>::value or
-    std::is_same<T, char>::value
->::type load(Archive &ar, T &t, const unsigned int)
-{
-    BinaryObject bo(&t, 1);
-    ar >> bo;
-}
-
-//------------ 16 bit integer support (short types) --------------//
-template<typename Archive, typename T>
-typename std::enable_if<
-    std::is_same<T, unsigned short>::value or
-    std::is_same<T, signed short>::value
->::type save(Archive &ar, const T &t, const unsigned int)
-{
-    unsigned char buff[2];
-    const auto v = static_cast<unsigned short>(t);
-    buff[0] = static_cast<unsigned char>(v >> 0);
-    buff[1] = static_cast<unsigned char>(v >> 8);
-    BinaryObject bo(buff, sizeof(buff));
-    ar << bo;
-}
-
-template<typename Archive, typename T>
-typename std::enable_if<
-    std::is_same<T, unsigned short>::value or
-    std::is_same<T, signed short>::value
->::type load(Archive &ar, T &t, const unsigned int)
-{
-    unsigned char buff[2];
-    BinaryObject bo(buff, sizeof(buff));
-    ar >> bo;
-    t = static_cast<T>(
-        (static_cast<unsigned short>(buff[0]) << 0) |
-        (static_cast<unsigned short>(buff[1]) << 8));
-}
-
-//------------ 32 bit integer support (int types) --------------//
-template<typename Archive, typename T>
-typename std::enable_if<
-    std::is_same<T, unsigned int>::value or
-    std::is_same<T, signed int>::value
->::type save(Archive &ar, const T &t, const unsigned int)
-{
-    unsigned char buff[4];
-    const auto v = static_cast<unsigned int>(t);
-    buff[0] = static_cast<unsigned char>(v >> 0);
-    buff[1] = static_cast<unsigned char>(v >> 8);
-    buff[2] = static_cast<unsigned char>(v >> 16);
-    buff[3] = static_cast<unsigned char>(v >> 24);
-    BinaryObject bo(buff, sizeof(buff));
-    ar << bo;
-}
-
-template<typename Archive, typename T>
-typename std::enable_if<
-    std::is_same<T, unsigned int>::value or
-    std::is_same<T, signed int>::value
->::type load(Archive &ar, T &t, const unsigned int)
-{
-    unsigned char buff[4];
-    BinaryObject bo(buff, sizeof(buff));
-    ar >> bo;
-    t = static_cast<T>(
-        (static_cast<unsigned int>(buff[0]) << 0) |
-        (static_cast<unsigned int>(buff[1]) << 8) |
-        (static_cast<unsigned int>(buff[2]) << 16) |
-        (static_cast<unsigned int>(buff[3]) << 24));
-}
-
-//------------ 64 bit integer support (long types)--------------//
-// the size of long notoriously varies among platforms
-// always serialize long with 8 bytes for portability
-template<typename Archive, typename T>
-typename std::enable_if<
-    std::is_same<T, unsigned long>::value or
-    std::is_same<T, signed long>::value or
-    std::is_same<T, unsigned long long>::value or
-    std::is_same<T, signed long long>::value
+    std::is_integral<T>::value
 >::type save(Archive &ar, const T &t, const unsigned int)
 {
     unsigned char buff[8];
@@ -156,10 +66,7 @@ typename std::enable_if<
 
 template<typename Archive, typename T>
 typename std::enable_if<
-    std::is_same<T, unsigned long>::value or
-    std::is_same<T, signed long>::value or
-    std::is_same<T, unsigned long long>::value or
-    std::is_same<T, signed long long>::value
+    std::is_integral<T>::value
 >::type load(Archive &ar, T &t, const unsigned int)
 {
     unsigned char buff[8];
